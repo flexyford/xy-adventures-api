@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+
+  resources :sites, :only => [:index, :show]
+
+  resources :plans, :only => [:create, :edit, :update, :show]
+
+  resources :users, :only => [:create, :destroy, :show, :edit, :update]
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
