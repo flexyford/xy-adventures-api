@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150209155015) do
+ActiveRecord::Schema.define(version: 20150210021337) do
 
   create_table "airbnbs", force: :cascade do |t|
     t.string   "name"
@@ -19,20 +19,32 @@ ActiveRecord::Schema.define(version: 20150209155015) do
     t.string   "location"
     t.integer  "user_id"
     t.integer  "room_id"
-    t.string   "type"
     t.string   "url"
     t.string   "imgUrl"
-    t.string   "room_type"
     t.string   "latitude"
     t.string   "longitude"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
+  create_table "sites", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.string   "first_name"
     t.string   "last_name"
     t.string   "email"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "videos", force: :cascade do |t|
+    t.string   "sw_latitude"
+    t.string   "sw_longitude"
+    t.string   "nw_latitude"
+    t.string   "nw_longitude"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

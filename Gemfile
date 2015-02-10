@@ -28,9 +28,16 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 # Use Unicorn as the app server
 # gem 'unicorn'
+gem 'puma'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
+
+# Airbnb Scraper
+gem 'ensnare_bnb', :path => 'lib/assets/gems/ensnare_bnb'
+
+# geocoder
+gem 'geocoder'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

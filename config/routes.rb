@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
 
-  resources :sites, :only => [:index, :show]
+  resources :sites, :only => [:show]
+  match '/sites',  to: 'sites#index', via: :post
 
   resources :plans, :only => [:create, :edit, :update, :show]
 
