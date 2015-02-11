@@ -29,6 +29,48 @@ module EnsnareBnb
       end
     end
 
+    def get_max_pages_airbnb_hosts(**opts)
+
+      city = opts.fetch(:city, nil)
+      state = opts.fetch(:state, nil)
+      country = opts.fetch(:country, nil)
+      sw_coords = opts.fetch(:sw, nil)
+      ne_coords = opts.fetch(:ne, nil)
+      range = opts.fetch(:range, 10)
+      sleep_time = opts.fetch(:sleep, 1)
+
+      # build intelligent options hashes/params in URLparams
+      base_url = "https://www.airbnb.com"
+
+      city_query = ""
+      coord_query = ""
+
+      if( sw_coords && ne_coords )
+        coord_query = "&sw_lat=" + sw_coords[0] + "&sw_lng=" + sw_coords[1] +
+                      "&ne_lat=" + ne_coords[0] + "&ne_lng=" + ne_coords[1]
+      elsif ( city )
+        city_query = [city, state, country].compact.map do |str|
+          str.gsub('-', '~').gsub(' ', '-')
+        end.join('--')
+      end
+
+      search_params = opts.except(:city, :state, :country, :max_pages, :sw, :ne)
+      query = city_query + "?" + search_params.to_query + coord_query
+
+      search_url = "#{base_url}/s/#{query}"
+     
+      pages = self.max_page_number(search_url)
+
+      if (pages == 0) 
+        pages = 1
+      elsif (pages > opts.fetch(:max_pages, MAX_PAGES))
+        pages = opts.fetch(:max_pages, MAX_PAGES)
+      end
+
+      pages
+
+    end
+
     def find_airbnb_hosts(**opts)
 
       # city, state, country

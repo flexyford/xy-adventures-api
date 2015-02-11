@@ -29,6 +29,12 @@ class Airbnb < Site
     gen_site(allRooms.values)
   end
 
+  def self.get_max_pages area
+    area[SW] = Route::Calculation.coord_float_to_string(area[SW])
+    area[NE] = Route::Calculation.coord_float_to_string(area[NE])
+    EnsnareBnb.get_max_pages_airbnb_hosts(sw: area[SW], ne: area[NE])
+  end
+
   def self.gen_site rooms
     rooms.map do |room|  
     {
