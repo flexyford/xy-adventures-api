@@ -11,23 +11,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150210021337) do
+ActiveRecord::Schema.define(version: 20150210162016) do
 
-  create_table "airbnbs", force: :cascade do |t|
-    t.string   "name"
-    t.float    "price"
-    t.string   "location"
-    t.integer  "user_id"
-    t.integer  "room_id"
-    t.string   "url"
-    t.string   "imgUrl"
-    t.string   "latitude"
-    t.string   "longitude"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
+  create_table "route_areas", force: :cascade do |t|
+    t.string   "sw_latitude"
+    t.string   "sw_longitude"
+    t.string   "ne_latitude"
+    t.string   "ne_longitude"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   create_table "sites", force: :cascade do |t|
+    t.string   "type"
+    t.string   "name"
+    t.float    "price"
+    t.string   "url"
+    t.string   "latitude"
+    t.string   "longitude"
+    t.json     "meta"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -36,15 +41,6 @@ ActiveRecord::Schema.define(version: 20150210021337) do
     t.string   "first_name"
     t.string   "last_name"
     t.string   "email"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "videos", force: :cascade do |t|
-    t.string   "sw_latitude"
-    t.string   "sw_longitude"
-    t.string   "nw_latitude"
-    t.string   "nw_longitude"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

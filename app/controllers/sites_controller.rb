@@ -2,15 +2,28 @@ class SitesController < ApplicationController
 
   skip_before_filter  :verify_authenticity_token
 
-  def index
-    @sites = Site.retrieve_all_sites route_params
-    binding.pry
-    render json: @sites, status: 200
+  def index 
+    result = RetrieveAllSites.run route_params
+
+    if result[:success?]
+      result[:sites].map do |site|
+        site.as_json.select {|k,v| k != "created_at" && k != "updated_at"}
+      end
+      render json: result[:sites], status: 200
+    else
+      render json: result[:error], :status => :not_found
+    end
   end
 
   def show
     @site = Site.find(params[:id])
-    render json: @site, status: 200
+    
+    if(@site)
+      @site = @site.as_json.select {|k,v| k != "created_at" && k != "updated_at"}
+      render json: @site, status: 200
+    else
+      render :status => :not_found
+    end
   end
 
   def route_params
