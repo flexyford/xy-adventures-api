@@ -17,10 +17,10 @@ ActiveRecord::Schema.define(version: 20150210162016) do
   enable_extension "plpgsql"
 
   create_table "route_areas", force: :cascade do |t|
-    t.string   "sw_latitude"
-    t.string   "sw_longitude"
-    t.string   "ne_latitude"
-    t.string   "ne_longitude"
+    t.float    "sw_latitude"
+    t.float    "sw_longitude"
+    t.float    "ne_latitude"
+    t.float    "ne_longitude"
     t.datetime "created_at",   null: false
     t.datetime "updated_at",   null: false
   end
@@ -30,8 +30,8 @@ ActiveRecord::Schema.define(version: 20150210162016) do
     t.string   "name"
     t.float    "price"
     t.string   "url"
-    t.string   "latitude"
-    t.string   "longitude"
+    t.float    "latitude"
+    t.float    "longitude"
     t.json     "meta"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

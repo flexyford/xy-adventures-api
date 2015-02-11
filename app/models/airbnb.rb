@@ -22,7 +22,7 @@ class Airbnb < Site
         if (lat_upper_bound >= room[:latitude].to_f &&  lat_lower_bound <= room[:latitude].to_f &&
             lng_upper_bound >= room[:longitude].to_f && lng_lower_bound <= room[:longitude].to_f)
           allRooms[room[:id]] = room
-        end 
+        end
       end
     end
 
@@ -34,8 +34,8 @@ class Airbnb < Site
     {
       name: room[:name],
       price: room[:price].to_f,
-      latitude: room[:latitude],
-      longitude: room[:longitude],
+      latitude: room[:latitude].to_f,
+      longitude: room[:longitude].to_f,
       url: room[:roomUrl],
       meta: {
         room_id: room[:id],

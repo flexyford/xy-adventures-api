@@ -9,21 +9,22 @@ class RetrieveSite
   def self.run(params)
     area = params[:area]
     range = params[:range]
-    # Check if Area Already Exists In db
 
+    # TODO - Extend to only Queries within the last week (UTC)
     areas = RouteArea.where(
       "sw_latitude <= ? AND sw_longitude <= ? AND " + 
       "ne_latitude >= ? AND ne_longitude >= ?", 
-      area[SW][LAT],
-      area[SW][LONG],
-      area[NE][LAT],
-      area[NE][LONG]
+      area[SW][LAT].to_f,
+      area[SW][LONG].to_f,
+      area[NE][LAT].to_f,
+      area[NE][LONG].to_f
     )
 
     sites = []
 
-    # No area found that contains this solution
+    
     if(areas.length == 0)
+      # Querying New Area; Create/Update Sites and create RouteArea
 
       # Double Range
       point = Route::Calculation.coord_float_to_string(params[:center])
@@ -53,18 +54,20 @@ class RetrieveSite
         end
         # Add area to Route Area Table
         RouteArea.create({
-          :sw_latitude => area[SW][LAT],
-          :sw_longitude => area[SW][LONG],
-          :ne_latitude => area[NE][LAT],
-          :ne_longitude => area[NE][LONG]
+          :sw_latitude => area[SW][LAT].to_f,
+          :sw_longitude => area[SW][LONG].to_f,
+          :ne_latitude => area[NE][LAT].to_f,
+          :ne_longitude => area[NE][LONG].to_f
         })
       end
     else
-      # Return all sites found within all areas
+      # Querying Recently Queried Areas
+      # Build all sites found within each area
+
       areas.each do |area|
         sites.concat(Site.where(
-          "latitude >= ? AND latitude <= ? AND longitude >= ? AND longitude <= ?",
-          area[SW][LAT], area[NE][LAT], area[SW][LONG], area[NE][LONG]
+          "latitude >= ? AND longitude >= ? AND latitude <= ? AND longitude <= ?",
+          area[:sw_latitude], area[:sw_longitude], area[:ne_latitude], area[:ne_longitude]
         ))
       end
     end

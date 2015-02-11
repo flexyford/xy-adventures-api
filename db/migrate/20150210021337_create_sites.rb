@@ -5,8 +5,8 @@ class CreateSites < ActiveRecord::Migration
       t.string  :name
       t.float   :price
       t.string  :url
-      t.string  :latitude
-      t.string  :longitude
+      t.float  :latitude
+      t.float  :longitude
       t.json    :meta
 
       t.timestamps null: false
