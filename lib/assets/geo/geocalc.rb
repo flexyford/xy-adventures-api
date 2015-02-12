@@ -34,7 +34,7 @@ module Route
     def divide_area(box)
       boxes = []
 
-      distance = (distance_between box[0], box[1]) / Math.sqrt(2)
+      distance = ((distance_between box[0], box[1]) / Math.sqrt(2)) / 2
       center = coord_float_to_string Geocoder::Calculations.geographic_center(box)
       north  = coord_float_to_string Geocoder::Calculations.endpoint(center, 0, distance)
       south  = coord_float_to_string Geocoder::Calculations.endpoint(center, 180, distance)

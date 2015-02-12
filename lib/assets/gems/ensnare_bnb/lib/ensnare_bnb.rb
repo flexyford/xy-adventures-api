@@ -132,16 +132,16 @@ module EnsnareBnb
 
           Nokogiri::HTML(open(url)).css("div.col-sm-12.col-md-6.row-space-2").each do |room|
 
-            listing = room.css('.listing').first
-            img_listing = room.css(".listing-img-container > img").first
+            listing = room.at_css('.listing')
+            img_listing = room.at_css(".listing-img-container > img")
 
             id       = listing['data-id']
-            location = room.css('.listing-location').first.text.match(/ ([^·\n]*)\s+$/)[1]
+            location = room.at_css('.listing-location > a')
             name     = listing['data-name']
             lat      = listing['data-lat']
             lng      = listing['data-lng']
             url      = base_url + listing['data-url']
-            price    = room.css('.price-amount').first.text
+            price    = room.at_css('.price-amount')
             img      = img_listing['src']
 
             # If default image was not found, use alternate images
@@ -151,9 +151,9 @@ module EnsnareBnb
 
             output = {
               id:   id,
-              location: location,
+              location: location.nil? ? nil : location.text.strip,
               name: name,
-              price: price.to_i,
+              price: price.nil? ? nil : price.text.to_f,
               latitude: lat,
               longitude: lng,
               roomUrl: url,
@@ -166,7 +166,7 @@ module EnsnareBnb
           # puts "Finished thread #{pg}"
         }
         # prevent bombarding the server with too many requests at once (default=>1)
-        sleep(sleep_time)
+        # sleep(sleep_time)
       end
       th.each {|t| t.join; }
       # logger.info("Done")
