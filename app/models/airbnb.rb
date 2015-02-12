@@ -45,6 +45,7 @@ class Airbnb < Site
       url: room[:roomUrl],
       meta: {
         room_id: room[:id],
+        user_id: room[:user_id],
         imgUrl: room[:imgUrl],
         location: room[:location]
       }

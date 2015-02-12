@@ -13,20 +13,23 @@ module EnsnareBnb
 
   class << self
 
-    MAX_PAGES = 100
+    MAX_PAGES = 56
 
     def max_page_number(url)
-      # pagination-buttons-container
-      selector = "body > div.map-search > div.sidebar > " +
-                  "div.search-results > div.results-footer > " +
-                  "div.pagination-buttons-container > div.pagination > ul > li"
-
-      li_list = Nokogiri::HTML(open(url)).css(selector)
-      if (li_list.length < 2)
-        li_list.length + 1
-      else
-        li_list[li_list.length - 2].text.to_i
+      pages = 1
+      lines = open(url) {|f| f.readlines }
+      idx = lines.index do |x| 
+              x.include? "<div class=\"pagination pagination-responsive\">" 
+            end
+      if(idx)
+        li_list = lines[idx].split( /(<li.*?\/li>)/ ).select{ |li| li.index('<li') == 0}
+        if (li_list.length < 2)
+          pages = li_list.length + 1
+        else
+          pages = li_list[li_list.length - 2].match(/>(\d+)</)[1].to_i
+        end
       end
+      pages
     end
 
     def get_max_pages_airbnb_hosts(**opts)
@@ -58,12 +61,10 @@ module EnsnareBnb
       query = city_query + "?" + search_params.to_query + coord_query
 
       search_url = "#{base_url}/s/#{query}"
-     
+
       pages = self.max_page_number(search_url)
 
-      if (pages == 0) 
-        pages = 1
-      elsif (pages > opts.fetch(:max_pages, MAX_PAGES))
+      if (pages > opts.fetch(:max_pages, MAX_PAGES))
         pages = opts.fetch(:max_pages, MAX_PAGES)
       end
 
@@ -112,9 +113,7 @@ module EnsnareBnb
      
       pages = self.max_page_number(search_url)
 
-      if (pages == 0) 
-        pages = 1
-      elsif (pages > opts.fetch(:max_pages, MAX_PAGES))
+      if (pages > opts.fetch(:max_pages, MAX_PAGES))
         pages = opts.fetch(:max_pages, MAX_PAGES)
       end
 
@@ -128,29 +127,38 @@ module EnsnareBnb
 
           # puts "Starting thread #{pg}"
 
-          url = "#{search_url}?room_types%5B%5D=Entire+home%2Fapt&page=#{pg + 1}"
+          page_url = "#{search_url}?room_types%5B%5D=Entire+home%2Fapt&page=#{pg + 1}"
 
-          Nokogiri::HTML(open(url)).css("div.col-sm-12.col-md-6.row-space-2").each do |room|
+          Nokogiri::HTML(open(page_url)).css("div.col-sm-12.col-md-6.row-space-2").each do |room|
 
-            listing = room.at_css('.listing')
+            listing = room.at_css('div.listing')
             img_listing = room.at_css(".listing-img-container > img")
 
+            break if listing.nil?
+
             id       = listing['data-id']
+            url      = base_url + listing['data-url']
+            user_id  = listing['data-user']
             location = room.at_css('.listing-location > a')
             name     = listing['data-name']
             lat      = listing['data-lat']
             lng      = listing['data-lng']
-            url      = base_url + listing['data-url']
             price    = room.at_css('.price-amount')
-            img      = img_listing['src']
+            img      = img_listing.nil? ? nil : img_listing['src']
 
             # If default image was not found, use alternate images
-            if (img.match(/no_photos/))
-              img = JSON.parse(img_listing['data-urls']).first
+            if (img && img.match(/no_photos/))
+              img_urls = img_listing['data-urls']
+              if JSON.is_json?(img_urls)
+                img = JSON.parse(img_urls).first
+              else
+                img = img_urls  
+              end
             end
 
             output = {
-              id:   id,
+              id: id,
+              user_id: user_id,
               location: location.nil? ? nil : location.text.strip,
               name: name,
               price: price.nil? ? nil : price.text.to_f,

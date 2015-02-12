@@ -11,10 +11,11 @@ class RetrieveSite
 
   AIRBNB_MAX_PAGES = 56
 
+  # @airbnb_route_areas = []
+
   def self.run(params)
     sites = []
 
-    # TODO - Extend to only Queries within the last week (UTC)
     areas = get_encompassing_routeAreas params[:area]
 
     updatedAreas = get_updated areas, DAYS
@@ -37,8 +38,9 @@ class RetrieveSite
       end 
     else
       # Querying New Area; Create/Update Sites and create RouteArea
-      point = Route::Calculation.coord_float_to_string(params[:center])
-      area = Route::Calculation.get_SW_NE_coordinates(point, 2 * params[:range])
+      #point = Route::Calculation.coord_float_to_string(params[:center])
+      #area = Route::Calculation.get_SW_NE_coordinates(point, 2 * params[:range])
+      area = params[:area]
 
       # Add Sites From External Sources
       sites.concat(get_airbnb_sites area) # Airbnb
@@ -118,6 +120,18 @@ class RetrieveSite
           ).first
           sites.push(build_model_entry new_airbnb_site, Airbnb, old_airbnb_site)
         end
+
+        # Add a bounding box here and add to temporary
+        # bounding_box = routeArea
+        # center = Geocoder::Calculations.geographic_center(routeArea[SW])
+        # bounding_box = Geocoder::Calculations.bounding_box(center_point, distance)
+        # @airbnb_route_areas.push({
+        #   :sw_latitude => bounding_box[SW][LAT],
+        #   :sw_longitude => bounding_box[SW][LONG],
+        #   :ne_latitude => bounding_box[NE][LAT],
+        #   :ne_longitude => bounding_box[NE][LONG]
+        # })
+
       end
     end
     sites.uniq{ |site| site["meta"]["room_id"] }
