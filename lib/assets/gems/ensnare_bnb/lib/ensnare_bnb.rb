@@ -134,7 +134,7 @@ module EnsnareBnb
             listing = room.at_css('div.listing')
             img_listing = room.at_css(".listing-img-container > img")
 
-            break if listing.nil?
+            next if listing.nil?
 
             id       = listing['data-id']
             url      = base_url + listing['data-url']

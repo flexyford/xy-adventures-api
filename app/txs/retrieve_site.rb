@@ -82,7 +82,7 @@ class RetrieveSite
           routeAreas.concat( Route::Calculation.divide_area(routeArea) )
         else
           airbnb_sites = Airbnb.retrieve_sites routeArea
-          if airbnb_sites
+          if airbnb_sites.length > 0
             # Add all found Airbnbs to this routeArea
             airbnb_sites.each do |new_airbnb_site|
               old_airbnb_site = Site.where(
@@ -121,15 +121,15 @@ class RetrieveSite
   def self.build_model_entry new_site, model, old_site = nil
     if(old_site)
       # Update Existing Model Entry
-      if (old_site[:updated_at] <= DateTime.now - 0.5)
+      if (old_site[:updated_at] <= DateTime.now - DAYS)
         # Update the Found Outdated Site
-        old_site.update(new_site)
+        old_site.update!(new_site)
       else
         old_site
       end
     else
       # Create New Model Entry
-      model.create(new_site)
+      model.create!(new_site)
     end
   end
 
