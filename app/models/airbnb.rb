@@ -1,4 +1,5 @@
 require 'ensnare_bnb'
+require 'geocoder'
 require_relative '../../lib/assets/geo/geocalc'
 
 class Airbnb < Site

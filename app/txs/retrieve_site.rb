@@ -16,52 +16,10 @@ class RetrieveSite
   def self.run(params)
     sites = []
 
-    areas = get_encompassing_routeAreas params[:area]
-
-    updatedAreas = get_updated areas, DAYS
-
-    # Destory all outdated RouteAreas
-    outdatedAreas = get_outdated areas, DAYS
-
-    outdatedAreas.each do |area|
-      area.destroy
-    end
-
-    if (updatedAreas.length > 0)
-      # Get all Recently Queried Areas
-      # Build all sites found within each area
-      updatedAreas.each do |area|
-        sites.concat(Site.where(
-          "latitude >= ? AND longitude >= ? AND latitude <= ? AND longitude <= ?",
-          area[:sw_latitude], area[:sw_longitude], area[:ne_latitude], area[:ne_longitude]
-        ))
-      end 
-    else
-      # Querying New Area; Create/Update Sites and create RouteArea
-      #point = Route::Calculation.coord_float_to_string(params[:center])
-      #area = Route::Calculation.get_SW_NE_coordinates(point, 2 * params[:range])
-      area = params[:area]
-
-      # Add Sites From External Sources
-      sites.concat(get_airbnb_sites area) # Airbnb
-
-      # Add area to Route Area Table
-      RouteArea.create({
-        :sw_latitude => area[SW][LAT].to_f,
-        :sw_longitude => area[SW][LONG].to_f,
-        :ne_latitude => area[NE][LAT].to_f,
-        :ne_longitude => area[NE][LONG].to_f
-      })
-    end
-
-    # Uniquify Most Recently Updated Rooms
-    site_ids = {}
-    sites.sort_by { |site| site.updated_at }
-      .keep_if do |site|
-        if(!site_ids[site.id])
-          site_ids[site.id] = true
-        end
-      end
+    # NOTE: Route Areas for each site type should be updated 
+    #       In 'get_siteType_sites area' function
+    # Add Sites From External Sources
+    sites.concat(get_airbnb_sites params[:area]) # Airbnb
 
     if sites
       {:status => 200, :success? => true, :sites => sites}
@@ -99,50 +57,75 @@ class RetrieveSite
 
   def self.get_airbnb_sites(routeArea)
     sites = []
-    routeAreas = []
+    routeAreas = [routeArea]
 
-    pages = Airbnb.get_max_pages routeArea
+    while routeArea = routeAreas.pop()
 
-    if(pages >= AIRBNB_MAX_PAGES)
-      # Split into 4 equivalent sections
-      routeAreas = Route::Calculation.divide_area(routeArea)
-      routeAreas.each do |routeArea|
-        sites.concat(get_airbnb_sites routeArea )
+      area_tables = get_encompassing_routeAreas routeArea
+
+      updatedAreas =  (get_updated area_tables, DAYS).select do |area|
+        area[:site_type] == 'Airbnb'
       end
-    else
-      airbnb_sites = Airbnb.retrieve_sites routeArea
-      if airbnb_sites
-        # Add all found Airbnbs to this routeArea
-        airbnb_sites.each do |new_airbnb_site|
-          old_airbnb_site = Site.where(
-            "type = ? AND meta->>'room_id' = ?",
-            "airbnb", new_airbnb_site[:meta][:room_id]
-          ).first
-          sites.push(build_model_entry new_airbnb_site, Airbnb, old_airbnb_site)
+
+      if (updatedAreas.length > 0)
+        # Find all Recently Queried Airbnb Areas
+        updatedAreas.each do |area|
+          sites.concat(Site.where(
+            "latitude >= ? AND longitude >= ? AND latitude <= ? AND longitude <= ?",
+            area[:sw_latitude], area[:sw_longitude], area[:ne_latitude], area[:ne_longitude]
+          ))
         end
+      else
+        pages = Airbnb.get_max_pages routeArea
+        if(pages >= AIRBNB_MAX_PAGES)
+          # Concat the divided section
+          routeAreas.concat( Route::Calculation.divide_area(routeArea) )
+        else
+          airbnb_sites = Airbnb.retrieve_sites routeArea
+          if airbnb_sites
+            # Add all found Airbnbs to this routeArea
+            airbnb_sites.each do |new_airbnb_site|
+              old_airbnb_site = Site.where(
+                "type = ? AND meta->>'room_id' = ?",
+                "Airbnb", new_airbnb_site[:meta][:room_id]
+              ).first
+              if (entry = build_model_entry new_airbnb_site, Airbnb, old_airbnb_site)
+                sites.push(entry)
+              end
+            end
+            new_airbnb_route_area = {
+              :sw_latitude =>  routeArea[SW][LAT].to_f,
+              :sw_longitude => routeArea[SW][LONG].to_f,
+              :ne_latitude =>  routeArea[NE][LAT].to_f,
+              :ne_longitude => routeArea[NE][LONG].to_f,
+              :site_type => 'Airbnb'
+            }
+            # Build New Route Area
+            build_model_entry new_airbnb_route_area, RouteArea
 
-        # Add a bounding box here and add to temporary
-        # bounding_box = routeArea
-        # center = Geocoder::Calculations.geographic_center(routeArea[SW])
-        # bounding_box = Geocoder::Calculations.bounding_box(center_point, distance)
-        # @airbnb_route_areas.push({
-        #   :sw_latitude => bounding_box[SW][LAT],
-        #   :sw_longitude => bounding_box[SW][LONG],
-        #   :ne_latitude => bounding_box[NE][LAT],
-        #   :ne_longitude => bounding_box[NE][LONG]
-        # })
-
+            # Destroy all Outdated Areas
+            outdatedAreas = (get_outdated area_tables, DAYS).select do |area|
+              area[:site_type] == 'Airbnb'
+            end
+            outdatedAreas.each do |area|
+              area.destroy
+            end
+          end
+        end
       end
     end
+
     sites.uniq{ |site| site["meta"]["room_id"] }
   end
 
   def self.build_model_entry new_site, model, old_site = nil
     if(old_site)
       # Update Existing Model Entry
-      if (old_site[:updated_at] <= DateTime.now - DAYS)
+      if (old_site[:updated_at] <= DateTime.now - 0.5)
         # Update the Found Outdated Site
         old_site.update(new_site)
+      else
+        old_site
       end
     else
       # Create New Model Entry
