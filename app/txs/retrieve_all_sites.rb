@@ -78,10 +78,14 @@ class RetrieveAllSites
   def self.build_full_box box
     # Build Square out of box
     center  = Geocoder::Calculations.geographic_center(box).map{ |point| point.to_s }
-    hyp     = Geocoder::Calculations.distance_between( center,box[NE] )
-    heading_center_ne = Geocoder::Calculations.bearing_between( box[0],box[1] )
-    heading_center_nw = heading_center_ne + 270
-    heading_center_se = heading_center_ne + 90
+    hyp     = Geocoder::Calculations.distance_between( center, box[NE])
+
+    heading_center_sw = Geocoder::Calculations.bearing_between( center,box[SW] )
+    heading_center_ne = Geocoder::Calculations.bearing_between( center,box[NE] )
+
+    heading_center_nw = 360 - heading_center_ne
+    heading_center_se = 360 - heading_center_sw
+    
     n_west = Geocoder::Calculations.endpoint(center, heading_center_nw, hyp).map{ |point| point.to_s }
     s_east = Geocoder::Calculations.endpoint(center, heading_center_se, hyp).map{ |point| point.to_s }
     {
