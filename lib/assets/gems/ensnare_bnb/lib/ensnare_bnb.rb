@@ -7,7 +7,6 @@ require 'json'
 require 'open-uri'
 require 'active_support'
 require 'active_support/core_ext/hash'
-require 'pry-byebug'
 
 module EnsnareBnb
 
