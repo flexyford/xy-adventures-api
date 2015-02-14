@@ -92,7 +92,7 @@ namespace :scraper do
   task :manhattan => :environment do
     # Manhattan
     box = [["40.70960932582525","-74.02476801352736"], ["40.81577946626191","-73.9166213460469"]]
-    range = 2.5
+    range = 1.25
 
     areas = RetrieveAllSites.split_route_area box, 2*range
 
