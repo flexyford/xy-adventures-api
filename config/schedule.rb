@@ -17,8 +17,8 @@
 #   runner "AnotherModel.prune_old_records"
 # end
 
-set :environment, "development"
-set :output, {:error => "log/pike_error_log.log", :standard => "log/pike_log.log"}
+set :environment, "production"
+set :output, {:error => "log/midwest_error_log.log", :standard => "log/midwest_error_log.log"}
 
 every :saturday, :at => '1am' do
   rake "scraper:midwest"
