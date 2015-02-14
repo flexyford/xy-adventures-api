@@ -13,7 +13,7 @@ namespace :scraper do
 
     areas.shuffle.each do |area|
       routeArea = {
-        :area => box,
+        :area => area,
         :range => RANGE,
         :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
       }
@@ -38,11 +38,11 @@ namespace :scraper do
 
     areas = RetrieveAllSites.split_route_area box, 2*range
 
-    puts "#{areas.length}"
+    puts "Searching #{areas.length} areas within #{box}"
 
     areas.shuffle.each do |area|
       routeArea = {
-        :area => box,
+        :area => area,
         :range => RANGE,
         :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
       }
@@ -67,11 +67,11 @@ namespace :scraper do
 
     areas = RetrieveAllSites.split_route_area box, 2*range
 
-    puts "#{areas.length}"
+    puts "Searching #{areas.length} areas within #{box}"
 
     areas.shuffle.each do |area|
       routeArea = {
-        :area => box,
+        :area => area,
         :range => RANGE,
         :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
       }
@@ -96,11 +96,11 @@ namespace :scraper do
 
     areas = RetrieveAllSites.split_route_area box, 2*range
 
-    puts "#{areas.length}"
+    puts "Searching #{areas.length} areas within #{box}"
 
     areas.shuffle.each do |area|
       routeArea = {
-        :area => box,
+        :area => area,
         :range => RANGE,
         :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
       }
