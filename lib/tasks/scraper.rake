@@ -8,6 +8,7 @@ namespace :scraper do
   task :midwest => :environment do
     # MidWest
     box = [["37.131131", "-101.691427"],["41.349327", "-81.037130"]]
+    puts "#{Time.now} - Start!"
 
     areas = RetrieveAllSites.split_route_area box, 2*RANGE
 
@@ -24,16 +25,21 @@ namespace :scraper do
         break
       else
         puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
-        puts "Example: #{retrieve[:sites].last.url}"
+        if retrieve[:sites].length > 0
+          puts "Example: #{retrieve[:sites].last.url}"
+        end
         puts "#{Time.now} - Success!"
       end
     end
+    puts "#{Time.now} - End!"
   end
+  
   desc "Rake task to get South Carolina"
   task :southcarolina => :environment do
     # South Carolina
     box = [["31.912511769065443", "-82.39385887908526"],["35.67459552713459", "-78.93316551971026"]]
     range = 25
+    puts "#{Time.now} - Start!"
 
     areas = RetrieveAllSites.split_route_area box, 2*range
 
@@ -42,7 +48,7 @@ namespace :scraper do
     areas.shuffle.each do |area|
       routeArea = {
         :area => area,
-        :range => RANGE,
+        :range => range,
         :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
       }
       retrieve = RetrieveSite.run routeArea
@@ -52,10 +58,13 @@ namespace :scraper do
         break
       else
         puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
-        puts "Example: #{retrieve[:sites].last.url}"
+        if retrieve[:sites].length > 0
+          puts "Example: #{retrieve[:sites].last.url}"
+        end
         puts "#{Time.now} - Success!"
       end
     end
+    puts "#{Time.now} - End!"
   end
 
   desc "Rake task to get Pike National Forest Sites"
@@ -63,6 +72,7 @@ namespace :scraper do
     # NorthDakota
     box = [["38.786483519362044", "-105.89261390227028"],["39.37679051602722", "-105.02744056242653"]]
     range = 50
+    puts "#{Time.now} - Start!"
 
     areas = RetrieveAllSites.split_route_area box, 2*range
 
@@ -71,7 +81,7 @@ namespace :scraper do
     areas.shuffle.each do |area|
       routeArea = {
         :area => area,
-        :range => RANGE,
+        :range => range,
         :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
       }
       retrieve = RetrieveSite.run routeArea
@@ -81,10 +91,13 @@ namespace :scraper do
         break
       else
         puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
-        puts "Example: #{retrieve[:sites].last.url}"
+        if retrieve[:sites].length > 0
+          puts "Example: #{retrieve[:sites].last.url}"
+        end
         puts "#{Time.now} - Success!"
       end
     end
+    puts "#{Time.now} - End!"
   end
 
   desc "Rake task to get NorthDakota"
@@ -92,6 +105,7 @@ namespace :scraper do
     # NorthDakota
     box = [["45.872402", "-103.999841"], ["48.934755", "-96.748865"]]
     range = 25
+    puts "#{Time.now} - Start!"
 
     areas = RetrieveAllSites.split_route_area box, 2*range
 
@@ -100,7 +114,7 @@ namespace :scraper do
     areas.shuffle.each do |area|
       routeArea = {
         :area => area,
-        :range => RANGE,
+        :range => range,
         :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
       }
       retrieve = RetrieveSite.run routeArea
@@ -110,10 +124,13 @@ namespace :scraper do
         break
       else
         puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
-        puts "Example: #{retrieve[:sites].last.url}"
+        if retrieve[:sites].length > 0
+          puts "Example: #{retrieve[:sites].last.url}"
+        end
         puts "#{Time.now} - Success!"
       end
     end
+    puts "#{Time.now} - End!"
   end
 
   desc "Rake task to get Manhattan"
@@ -121,6 +138,7 @@ namespace :scraper do
     # Manhattan
     box = [["40.70960932582525","-74.02476801352736"], ["40.81577946626191","-73.9166213460469"]]
     range = 1.25
+    puts "#{Time.now} - Start!"
 
     areas = RetrieveAllSites.split_route_area box, 2*range
 
@@ -129,7 +147,7 @@ namespace :scraper do
     areas.shuffle.each do |area|
       routeArea = {
         :area => area,
-        :range => RANGE,
+        :range => range,
         :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
       }
       retrieve = RetrieveSite.run routeArea
@@ -139,10 +157,13 @@ namespace :scraper do
         break
       else
         puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
-        puts "Example: #{retrieve[:sites].last.url}"
+        if retrieve[:sites].length > 0
+          puts "Example: #{retrieve[:sites].last.url}"
+        end
         puts "#{Time.now} - Success!"
       end
     end
+    puts "#{Time.now} - End!"
   end
 
   desc "Hello World Test"
