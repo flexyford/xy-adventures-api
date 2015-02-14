@@ -1,6 +1,6 @@
 class RetrieveAllSites
 
-  RANGE = 50
+  RANGE = 1.25
 
   SW = 0
   NE = 1
