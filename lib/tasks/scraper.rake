@@ -37,20 +37,20 @@ namespace :scraper do
 
     puts "#{areas.length}"
 
-    # areas.shuffle.each do |area|
-    #   routeArea = {
-    #     :area => box,
-    #     :range => RANGE,
-    #     :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
-    #   }
-    #   retrieve = RetrieveSite.run routeArea
-    #   if !retrieve[:success?]
-    #     puts "Scrape Successful for #{box}"
-    #   else
-    #     puts "Scrape Failed for #{box}"
-    #     break
-    #   end
-    # end
+    areas.shuffle.each do |area|
+      routeArea = {
+        :area => box,
+        :range => RANGE,
+        :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
+      }
+      retrieve = RetrieveSite.run routeArea
+      if !retrieve[:success?]
+        puts "Scrape Successful for #{box}"
+      else
+        puts "Scrape Failed for #{box}"
+        break
+      end
+    end
     puts "#{Time.now} - Success!"
   end
 
