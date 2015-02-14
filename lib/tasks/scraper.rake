@@ -19,11 +19,11 @@ namespace :scraper do
       }
       retrieve = RetrieveSite.run routeArea
       if !retrieve[:success?]
-        puts "Scrape Failed for #{box}"
+        puts "Scrape Failed for #{area} within #{box}"
         puts "#{Time.now} - Failure!"
         break
       else
-        puts "Scrape Successful for #{box}"
+        puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
         puts "Example: #{retrieve[:sites].last.url}"
         puts "#{Time.now} - Success!"
       end
@@ -48,11 +48,11 @@ namespace :scraper do
       }
       retrieve = RetrieveSite.run routeArea
       if !retrieve[:success?]
-        puts "Scrape Failed for #{box}"
+        puts "Scrape Failed for #{area} within #{box}"
         puts "#{Time.now} - Failure!"
         break
       else
-        puts "Scrape Successful for #{box}"
+        puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
         puts "Example: #{retrieve[:sites].last.url}"
         puts "#{Time.now} - Success!"
       end
@@ -77,11 +77,11 @@ namespace :scraper do
       }
       retrieve = RetrieveSite.run routeArea
       if !retrieve[:success?]
-        puts "Scrape Failed for #{box}"
+        puts "Scrape Failed for #{area} within #{box}"
         puts "#{Time.now} - Failure!"
         break
       else
-        puts "Scrape Successful for #{box}"
+        puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
         puts "Example: #{retrieve[:sites].last.url}"
         puts "#{Time.now} - Success!"
       end
@@ -106,11 +106,11 @@ namespace :scraper do
       }
       retrieve = RetrieveSite.run routeArea
       if !retrieve[:success?]
-        puts "Scrape Failed for #{box}"
+        puts "Scrape Failed for #{area} within #{box}"
         puts "#{Time.now} - Failure!"
         break
       else
-        puts "Scrape Successful for #{box}"
+        puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
         puts "Example: #{retrieve[:sites].last.url}"
         puts "#{Time.now} - Success!"
       end
