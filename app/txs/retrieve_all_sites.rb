@@ -75,17 +75,20 @@ class RetrieveAllSites
 
   private
 
-  def self.build_square_route_area box
+  def self.build_full_box box
     # Build Square out of box
-    range = ( (Geocoder::Calculations.distance_between( box[0],box[1] ) / Math.sqrt(2) ) / 2)
-    center = Geocoder::Calculations.geographic_center(box).map{ |point| point.to_s }
-    north  = Geocoder::Calculations.endpoint(center, 0, range).map{ |point| point.to_s }
-    south  = Geocoder::Calculations.endpoint(center, 180, range).map{ |point| point.to_s }
-    s_west = Geocoder::Calculations.endpoint(south, 270, range).map{ |point| point.to_s }
-    n_east = Geocoder::Calculations.endpoint(north, 90, range).map{ |point| point.to_s }
+    center  = Geocoder::Calculations.geographic_center(box).map{ |point| point.to_s }
+    hyp     = Geocoder::Calculations.distance_between( center,box[NE] )
+    heading_center_ne = Geocoder::Calculations.bearing_between( box[0],box[1] )
+    heading_center_nw = heading_center_ne + 270
+    heading_center_se = heading_center_ne + 90
+    n_west = Geocoder::Calculations.endpoint(center, heading_center_nw, hyp).map{ |point| point.to_s }
+    s_east = Geocoder::Calculations.endpoint(center, heading_center_se, hyp).map{ |point| point.to_s }
     {
-      :area => [s_west, n_east],
-      :range => range,
+      :sw => box[SW],
+      :ne => box[NE],
+      :nw => n_west,
+      :se => s_east,
       :center => center
     }
   end
@@ -93,12 +96,13 @@ class RetrieveAllSites
   def self.split_route_area box, side_length
     results = []
 
-    square_route_area = build_square_route_area box
-  
+    area = build_full_box box
+
     # Build Squares to SouthEast Boundary
     southern_boundary_boxes = []
-    current_sw = square_route_area[:area][SW]
-    boundary = Geocoder::Calculations.endpoint(current_sw, 90, square_route_area[:range] * 2)
+    current_sw = area[:sw]
+    boundary = area[:se]
+
     until current_sw == boundary do
       dist_to_bound = Geocoder::Calculations.distance_between(current_sw, boundary)
       southern_boundary_boxes.push(build_box current_sw, side_length)
@@ -109,10 +113,13 @@ class RetrieveAllSites
       end
     end
 
+    vertical_dist = Geocoder::Calculations.distance_between(area[:sw], area[:nw])
+
     # Build Squares to NorthWest Boundary
     southern_boundary_boxes.each do |x|
+
       current_sw = x[SW]
-      boundary = Geocoder::Calculations.endpoint(current_sw,  0, square_route_area[:range] * 2)
+      boundary = Geocoder::Calculations.endpoint(current_sw, 0, vertical_dist).map{ |point| point.to_s }
       until current_sw == boundary do
         dist_to_bound = Geocoder::Calculations.distance_between(current_sw, boundary)
         results.push(build_box current_sw, side_length)
@@ -141,5 +148,3 @@ class RetrieveAllSites
   end
 
 end
-
-
