@@ -30,7 +30,7 @@ namespace :scraper do
     end
   end
   desc "Rake task to get South Carolina"
-  task :pike => :environment do
+  task :southcarolina => :environment do
     # South Carolina
     box = [["31.912511769065443", "-82.39385887908526"],["35.67459552713459", "-78.93316551971026"]]
     range = 25
