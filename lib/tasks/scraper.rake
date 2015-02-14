@@ -4,7 +4,7 @@ require_relative '../../app/txs/retrieve_site'
 RANGE = 50
 
 namespace :scraper do
-  desc "Rake task to get Pike National Forest Sites"
+  desc "Rake task to get Midwest Sites"
   task :midwest => :environment do
     # MidWest
     box = [["37.131131", "-101.691427"],["41.349327", "-81.037130"]]
