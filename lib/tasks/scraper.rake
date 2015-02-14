@@ -13,6 +13,8 @@ namespace :scraper do
 
     areas = RetrieveAllSites.split_route_area box, 2*RANGE
 
+    puts "Searching #{areas.length} areas within #{box}"
+
     areas.shuffle.each do |area|
       routeArea = {
         :area => area,
@@ -172,6 +174,39 @@ namespace :scraper do
     # Texas
     box = [["25.903552", "-106.333089"], ["36.319416", "-93.479084"]]
     range = 50
+    puts "#{Time.now} - Start!"
+
+    areas = RetrieveAllSites.split_route_area box, 2*range
+
+    puts "Searching #{areas.length} areas within #{box}"
+
+    areas.shuffle.each do |area|
+      routeArea = {
+        :area => area,
+        :range => range,
+        :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
+      }
+      retrieve = RetrieveSite.run routeArea
+      if !retrieve[:success?]
+        puts "Scrape Failed for #{area} within #{box}"
+        puts "#{Time.now} - Failure!"
+        break
+      else
+        puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
+        if retrieve[:sites].length > 0
+          puts "Example: #{retrieve[:sites].last.url}"
+        end
+        puts "#{Time.now} - Success!"
+      end
+    end
+    puts "#{Time.now} - End!"
+  end
+
+  desc "Rake task to get Continental US"
+  task :continental => :environment do
+    # Continental US
+    box = [["27.963019", "-123.124351"], ["48.841332", "-67.929038"]]
+    range = 100
     puts "#{Time.now} - Start!"
 
     areas = RetrieveAllSites.split_route_area box, 2*range
