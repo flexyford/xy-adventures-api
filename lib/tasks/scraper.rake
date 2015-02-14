@@ -19,13 +19,15 @@ namespace :scraper do
       }
       retrieve = RetrieveSite.run routeArea
       if !retrieve[:success?]
-        puts "Scrape Successful for #{box}"
-      else
         puts "Scrape Failed for #{box}"
+        puts "#{Time.now} - Failure!"
         break
+      else
+        puts "Scrape Successful for #{box}"
+        puts "Example: #{retrieve[:sites].last.url}"
+        puts "#{Time.now} - Success!"
       end
     end
-    puts "#{Time.now} - Success!"
   end
 
   desc "Rake task to get Pike National Forest Sites"
@@ -46,13 +48,15 @@ namespace :scraper do
       }
       retrieve = RetrieveSite.run routeArea
       if !retrieve[:success?]
-        puts "Scrape Successful for #{box}"
-      else
         puts "Scrape Failed for #{box}"
+        puts "#{Time.now} - Failure!"
         break
+      else
+        puts "Scrape Successful for #{box}"
+        puts "Example: #{retrieve[:sites].last.url}"
+        puts "#{Time.now} - Success!"
       end
     end
-    puts "#{Time.now} - Success!"
   end
 
   desc "Rake task to get NorthDakota"
@@ -73,13 +77,15 @@ namespace :scraper do
       }
       retrieve = RetrieveSite.run routeArea
       if !retrieve[:success?]
-        puts "Scrape Successful for #{box}"
-      else
         puts "Scrape Failed for #{box}"
+        puts "#{Time.now} - Failure!"
         break
+      else
+        puts "Scrape Successful for #{box}"
+        puts "Example: #{retrieve[:sites].last.url}"
+        puts "#{Time.now} - Success!"
       end
     end
-    puts "#{Time.now} - Success!"
   end
 
   desc "Rake task to get Manhattan"
@@ -100,13 +106,15 @@ namespace :scraper do
       }
       retrieve = RetrieveSite.run routeArea
       if !retrieve[:success?]
-        puts "Scrape Successful for #{box}"
-      else
         puts "Scrape Failed for #{box}"
+        puts "#{Time.now} - Failure!"
         break
+      else
+        puts "Scrape Successful for #{box}"
+        puts "Example: #{retrieve[:sites].last.url}"
+        puts "#{Time.now} - Success!"
       end
     end
-    puts "#{Time.now} - Success!"
   end
 
   desc "Hello World Test"
