@@ -47,7 +47,7 @@ gem 'geocoder'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'pry-byebug', '~> 3.0.1'
+  #gem 'pry-byebug', '~> 3.0.1'
 
   # Hirb provides a mini view framework for console applications and uses it to improve ripl(irb)'s default inspect output.
   gem 'hirb', '~> 0.7.3' 
