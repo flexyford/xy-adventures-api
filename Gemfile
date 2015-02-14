@@ -60,4 +60,6 @@ group :development, :test do
   gem 'spring'
 end
 
+# heroku additions
 ruby "2.2.0"
+gem 'rails_12factor'
