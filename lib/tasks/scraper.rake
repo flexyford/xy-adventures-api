@@ -29,6 +29,34 @@ namespace :scraper do
       end
     end
   end
+  desc "Rake task to get South Carolina"
+  task :pike => :environment do
+    # South Carolina
+    box = [["31.912511769065443", "-82.39385887908526"],["35.67459552713459", "-78.93316551971026"]]
+    range = 25
+
+    areas = RetrieveAllSites.split_route_area box, 2*range
+
+    puts "Searching #{areas.length} areas within #{box}"
+
+    areas.shuffle.each do |area|
+      routeArea = {
+        :area => area,
+        :range => RANGE,
+        :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
+      }
+      retrieve = RetrieveSite.run routeArea
+      if !retrieve[:success?]
+        puts "Scrape Failed for #{area} within #{box}"
+        puts "#{Time.now} - Failure!"
+        break
+      else
+        puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
+        puts "Example: #{retrieve[:sites].last.url}"
+        puts "#{Time.now} - Success!"
+      end
+    end
+  end
 
   desc "Rake task to get Pike National Forest Sites"
   task :pike => :environment do
