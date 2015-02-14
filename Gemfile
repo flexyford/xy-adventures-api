@@ -61,5 +61,4 @@ group :development, :test do
 end
 
 # heroku additions
-ruby "2.2.0"
-gem 'rails_12factor'
+ruby "2.0.0"
