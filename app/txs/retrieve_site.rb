@@ -19,6 +19,9 @@ class RetrieveSite
     # NOTE: Route Areas for each site type should be updated 
     #       In 'get_siteType_sites area' function
     # Add Sites From External Sources
+
+    puts "DEBUG: Getting airbnb sites for #{params[:area]} . . . "
+
     sites.concat(get_airbnb_sites params[:area]) # Airbnb
 
     if sites
@@ -57,6 +60,7 @@ class RetrieveSite
 
   def self.get_airbnb_sites(routeArea)
     sites = []
+    umbrellaAreas = {}
     routeAreas = [routeArea]
 
     while routeArea = routeAreas.pop()
@@ -79,9 +83,15 @@ class RetrieveSite
         pages = Airbnb.get_max_pages routeArea
         if(pages >= AIRBNB_MAX_PAGES)
           # Concat the divided section
+          if umbrellaAreas[routeAreas.length].nil?
+            umbrellaAreas[routeAreas.length] = [routeArea]
+          else
+            umbrellaAreas[routeAreas.length].push(routeArea)
+          end
           routeAreas.concat( Route::Calculation.divide_area(routeArea) )
         else
           airbnb_sites = Airbnb.retrieve_sites routeArea
+
           if airbnb_sites.length > 0
             # Add all found Airbnbs to this routeArea
             airbnb_sites.each do |new_airbnb_site|
@@ -102,17 +112,31 @@ class RetrieveSite
             }
             # Build New Route Area
             build_model_entry new_airbnb_route_area, RouteArea
-
-            # Destroy all Outdated Areas
-            outdatedAreas = (get_outdated area_tables, DAYS).select do |area|
-              area[:site_type] == 'Airbnb'
-            end
-            outdatedAreas.each do |area|
-              area.destroy
-            end
           end
         end
       end
+      if umbrellaAreas[routeAreas.length] && umbrellaAreas[routeAreas.length].length > 0
+        umbrellaAreas[routeAreas.length].each do |routeArea|
+          new_airbnb_route_area = {
+            :sw_latitude =>  routeArea[SW][LAT].to_f,
+            :sw_longitude => routeArea[SW][LONG].to_f,
+            :ne_latitude =>  routeArea[NE][LAT].to_f,
+            :ne_longitude => routeArea[NE][LONG].to_f,
+            :site_type => 'Airbnb'
+          }
+          # Build New Route Area
+          build_model_entry new_airbnb_route_area, RouteArea
+        end
+        umbrellaAreas.delete(routeAreas.length)
+      end
+    end
+
+    # Destroy all Outdated Areas
+    outdatedAreas = (get_outdated area_tables, DAYS).select do |area|
+      area[:site_type] == 'Airbnb'
+    end
+    outdatedAreas.each do |area|
+      area.destroy
     end
 
     sites.uniq{ |site| site["meta"]["room_id"] }
