@@ -1,6 +1,7 @@
+
 class RetrieveAllSites
 
-  RANGE = 20
+  RANGE = 50
 
   SW = 0
   NE = 1
@@ -28,7 +29,7 @@ class RetrieveAllSites
     # box = [["25.903552", "-106.333089"], ["36.319416", "-93.479084"]]
 
     # Denver -> LA - Exited Early
-    # box = [["33.47369011830391", "-115.13950619355285"], ["40.65407376044618", "-108.21811947480285"]]
+    box = [["33.47369011830391", "-115.13950619355285"], ["40.65407376044618", "-108.21811947480285"]]
 
     # Pike National Forest - 50
     # box = [["38.786483519362044", "-105.89261390227028"],["39.37679051602722", "-105.02744056242653"]]
@@ -40,7 +41,7 @@ class RetrieveAllSites
     # box = [["40.595368", "-75.017418"],["41.168498", "-73.567223"]]
 
     # Manhattan - 1.25 X / 0.5 √
-    box = [["40.70960932582525","-74.02476801352736"], ["40.81577946626191","-73.9166213460469"]]
+    # box = [["40.70960932582525","-74.02476801352736"], ["40.81577946626191","-73.9166213460469"]]
 
     # A few rentals on the east coast ~100
     # box = [["38.768707004353466", "-75.44835581259963"],["39.639776767898994", "-74.58318247275588"]]
@@ -154,11 +155,11 @@ class RetrieveAllSites
 
     until current_sw == boundary do
       dist_to_bound = Geocoder::Calculations.distance_between(current_sw, boundary)
-      southern_boundary_boxes.push(build_box current_sw, side_length)
-      if dist_to_bound < 1.5 * side_length
+      if dist_to_bound < side_length
         southern_boundary_boxes.push(build_box current_sw, dist_to_bound)
         current_sw = boundary
       else
+        southern_boundary_boxes.push(build_box current_sw, side_length)
         current_sw = Geocoder::Calculations.endpoint(current_sw, 90, side_length).map{ |point| point.to_s }
       end
     end
@@ -169,15 +170,17 @@ class RetrieveAllSites
     southern_boundary_boxes.each do |x|
 
       current_sw = x[SW]
+      current_ne = x[NE]
       boundary = Geocoder::Calculations.endpoint(current_sw, 0, vertical_dist).map{ |point| point.to_s }
       until current_sw == boundary do
         dist_to_bound = Geocoder::Calculations.distance_between(current_sw, boundary)
-        results.push(build_box current_sw, side_length)
-        if dist_to_bound < 1.5 * side_length
-          results.push(build_box current_sw, dist_to_bound)
+        if dist_to_bound < side_length
+          results.push([current_sw, current_ne])
           current_sw = boundary
         else
-          current_sw = Geocoder::Calculations.endpoint(current_sw, 90, side_length).map{ |point| point.to_s }
+          results.push([current_sw, current_ne])
+          current_sw = Geocoder::Calculations.endpoint(current_sw, 0, side_length).map{ |point| point.to_s }
+          current_ne = Geocoder::Calculations.endpoint(current_ne, 0, side_length).map{ |point| point.to_s }
         end
       end
     end
@@ -190,12 +193,6 @@ class RetrieveAllSites
     se_coord = Geocoder::Calculations.endpoint(sw_coord, 90, side_length)
     ne_coord = Geocoder::Calculations.endpoint(se_coord,  0, side_length).map{ |point| point.to_s }
     box  = [sw_coord, ne_coord]
-  end
-
-  def self.stack_box_up box, side_length
-    sw = Geocoder::Calculations.endpoint(box[SW], 0, range).map{ |point| point.to_s }
-    ne =  Geocoder::Calculations.endpoint(box[NE], 0, range).map{ |point| point.to_s }
-    [sw, ne]
   end
 
 end
