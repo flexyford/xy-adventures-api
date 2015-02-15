@@ -73,6 +73,51 @@ class RetrieveAllSites
     result
   end
 
+  def self.update(params)
+    box = params[:box]
+
+    th = []
+    result = {
+      :sites => []
+    }
+
+    # Manhattan - 1.25 X / 0.5 √
+    # box = [["40.70960932582525","-74.02476801352736"], ["40.81577946626191","-73.9166213460469"]]
+
+    areas = split_route_area box, 2*RANGE
+
+    puts "Searching #{areas.length} areas within #{box}"
+
+    areas.shuffle.each do |area|
+      routeArea = {
+        :area => box,
+        :range => RANGE,
+        :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
+      }
+      # Empty variable to free RAM
+      retrieve = {}
+      retrieve = RetrieveSite.run routeArea
+      if !retrieve[:success?]
+        puts "Scrape Failed for #{area} within #{box}"
+        puts "#{Time.now} - Failure!"
+        result[:error] = retrieve
+        break
+      else
+        puts "Scrape Successful for #{area}: Returned #{retrieve[:sites].length} results"
+        if retrieve[:sites].length > 0
+          puts "Example: #{retrieve[:sites].last.url}"
+        end
+        puts "#{Time.now} - Success!"
+      end
+    end
+
+    if !result[:error]
+      # Uniquify By Room Id
+      result[:success?] = true;
+    end
+    result
+  end
+
   private
 
   def self.build_full_box box
@@ -110,10 +155,11 @@ class RetrieveAllSites
     until current_sw == boundary do
       dist_to_bound = Geocoder::Calculations.distance_between(current_sw, boundary)
       southern_boundary_boxes.push(build_box current_sw, side_length)
-      if dist_to_bound > side_length
-        current_sw = Geocoder::Calculations.endpoint(current_sw, 90, side_length).map{ |point| point.to_s }
-      else
+      if dist_to_bound < 1.5 * side_length
+        southern_boundary_boxes.push(build_box current_sw, dist_to_bound)
         current_sw = boundary
+      else
+        current_sw = Geocoder::Calculations.endpoint(current_sw, 90, side_length).map{ |point| point.to_s }
       end
     end
 
@@ -127,10 +173,11 @@ class RetrieveAllSites
       until current_sw == boundary do
         dist_to_bound = Geocoder::Calculations.distance_between(current_sw, boundary)
         results.push(build_box current_sw, side_length)
-        if dist_to_bound > side_length
-          current_sw = Geocoder::Calculations.endpoint(current_sw,  0, side_length).map{ |point| point.to_s }
-        else
+        if dist_to_bound < 1.5 * side_length
+          results.push(build_box current_sw, dist_to_bound)
           current_sw = boundary
+        else
+          current_sw = Geocoder::Calculations.endpoint(current_sw, 90, side_length).map{ |point| point.to_s }
         end
       end
     end
