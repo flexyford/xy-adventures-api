@@ -53,7 +53,7 @@ class RetrieveAllSites
 
     areas.shuffle.each do |area|
       routeArea = {
-        :area => box,
+        :area => area,
         :range => RANGE,
         :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
       }
@@ -91,7 +91,7 @@ class RetrieveAllSites
 
     areas.shuffle.each do |area|
       routeArea = {
-        :area => box,
+        :area => area,
         :range => RANGE,
         :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
       }
