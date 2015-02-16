@@ -79,6 +79,9 @@ namespace :scraper do
 
   desc "Rake task to get Continental US"
   task :continental => :environment do
+
+    Geocoder::Configuration.timeout = 15
+    
     # Continental US
     box = [["27.963019", "-123.124351"], ["48.841332", "-67.929038"]]
     puts "#{Time.now} - Start!"
