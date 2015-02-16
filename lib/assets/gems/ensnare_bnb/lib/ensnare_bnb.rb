@@ -168,11 +168,12 @@ module EnsnareBnb
             }
 
             @results << output
+            
+            # prevent bombarding the server with too many requests at once (default=>1)
+            sleep(sleep_time)
           end
           # puts "Finished thread #{pg}"
         }
-        # sleep(sleep_time)
-        # prevent bombarding the server with too many requests at once (default=>1)
       end
       th.each {|t| t.join; }
       # logger.info("Done")
