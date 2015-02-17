@@ -28,13 +28,13 @@ module XyAdventuresApi
      'Access-Control-Request-Method' => '*'
     })
       
-    # config.middleware.insert_before 0, "Rack::Cors" do
-    #   allow do
-    #     origins 'http://flexyford.github.io', 'http://localhost:4567'
-    #     # Allow :post later if we ever add users
-    #     resource '*', :headers => :any, :methods => [:get]
-    #   end
-    # end
+    config.middleware.insert_before 0, "Rack::Cors" do
+      allow do
+        origins 'http://localhost:4567'
+        # Allow :post later if we ever add users
+        resource '*', :headers => :any, :methods => [:get]
+      end
+    end
   end
 end
 

@@ -37,6 +37,9 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # gem 'unicorn'
 gem 'puma'
 
+# rack cors for allow access
+gem 'rack-cors'
+
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
