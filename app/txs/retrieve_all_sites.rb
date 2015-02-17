@@ -54,7 +54,7 @@ class RetrieveAllSites
     areas.shuffle.each do |area|
       routeArea = {
         :area => area,
-        :range => RANGE,
+        :range => UPDATE_RANGE,
         :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
       }
       # Empty variable to free RAM

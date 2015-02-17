@@ -1,4 +1,3 @@
-require 'pry-byebug'
 class SitesController < ApplicationController
 
   skip_before_filter  :verify_authenticity_token
