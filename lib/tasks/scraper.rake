@@ -1,4 +1,5 @@
 require 'geocoder'
+require 'pry-byebug'
 require_relative '../../app/txs/retrieve_all_sites'
 require_relative '../../app/txs/retrieve_site'
 RANGE = 50
@@ -86,8 +87,26 @@ namespace :scraper do
     box = [["27.963019", "-123.124351"], ["48.841332", "-67.929038"]]
     puts "#{Time.now} - Start!"
 
-    update_params = {box: box}
-    areas = RetrieveAllSites.update update_params
+    area = RetrieveAllSites.build_full_box box
+
+    # Divide Area into 24 equal sections . . . 
+    length = Geocoder::Calculations.distance_between( area[:sw], area[:se]);
+    width = Geocoder::Calculations.distance_between( area[:sw], area[:nw]);
+    side = [length, width].max
+    boxes = RetrieveAllSites.split_route_area box, side / 24
+    update_idx = Time.now.hour + 1
+    update_boxes = []
+    binding.pry
+    boxes.each_index do |idx|
+      if (idx + 1) % update_idx == 0
+        update_boxes.push(boxes[idx])
+      end
+    end
+
+    update_boxes.each do |box|
+      update_params = {box: box}
+      RetrieveAllSites.update update_params
+    end
 
     puts "#{Time.now} - End!"
   end

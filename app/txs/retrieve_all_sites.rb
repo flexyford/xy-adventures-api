@@ -81,8 +81,6 @@ class RetrieveAllSites
     result
   end
 
-  private
-
   def self.build_full_box box
     # Build Square out of box
     center  = Geocoder::Calculations.geographic_center(box).map{ |point| point.to_s }
@@ -104,6 +102,7 @@ class RetrieveAllSites
       :center => center
     }
   end
+
 
   def self.split_route_area box, side_length
     results = []
