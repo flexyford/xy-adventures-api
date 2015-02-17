@@ -1,7 +1,7 @@
-
 class RetrieveAllSites
 
-  RANGE = 50
+  UPDATE_RANGE = 50
+  RANGE = UPDATE_RANGE / 4
 
   SW = 0
   NE = 1
@@ -15,54 +15,16 @@ class RetrieveAllSites
     result = {
       :sites => []
     }
+    routeAreas = RouteArea.build_route_areas(JSON.parse(route), RANGE)
 
-    # South Carolina
-    # box = [["31.912511769065443", "-82.39385887908526"],["35.67459552713459", "-78.93316551971026"]]
-
-    # Wyoming - 20 √
-    # box = [["41.005877", "-111.075240"], ["44.976264", "-104.037224"]]
-
-    # North Dakota - 25 √
-    # box = [["45.872402", "-103.999841"], ["48.934755", "-96.748865"]]
-
-    # Texas - Exited Early
-    # box = [["25.903552", "-106.333089"], ["36.319416", "-93.479084"]]
-
-    # Denver -> LA - Exited Early
-    box = [["33.47369011830391", "-115.13950619355285"], ["40.65407376044618", "-108.21811947480285"]]
-
-    # Pike National Forest - 50
-    # box = [["38.786483519362044", "-105.89261390227028"],["39.37679051602722", "-105.02744056242653"]]
-
-    # East Coast
-    # box = [["35.841674556163134","-81.22930809783526"],["48.92340340451917","-67.38653466033526"]]
-
-    # New York, NY
-    # box = [["40.595368", "-75.017418"],["41.168498", "-73.567223"]]
-
-    # Manhattan - 1.25 X / 0.5 √
-    # box = [["40.70960932582525","-74.02476801352736"], ["40.81577946626191","-73.9166213460469"]]
-
-    # A few rentals on the east coast ~100
-    # box = [["38.768707004353466", "-75.44835581259963"],["39.639776767898994", "-74.58318247275588"]]
-
-    # West Coast
-    #box = [["34.91971868081203","-124.84085771082653"],["48.19399460126978","-110.99808427332653"]]
-
-    areas = split_route_area box, 2*RANGE
-
-    areas.shuffle.each do |area|
-      routeArea = {
-        :area => area,
-        :range => RANGE,
-        :center => Geocoder::Calculations.geographic_center(area).map{ |point| point.to_s }
-      }
-      retrieve = RetrieveSite.run routeArea
+    routeAreas.each_index do |idx|
+      area = routeAreas[idx][:area]
+      # Sites have not updated within last week
+      retrieve = RetrieveSite.run routeAreas[idx]
       if retrieve[:success?]
         result[:sites].concat(retrieve[:sites])
       else
         result[:error] = retrieve
-        break
       end
     end
 
@@ -82,10 +44,10 @@ class RetrieveAllSites
       :sites => []
     }
 
-    # Example - Manhattan
-    # params[:box] = [["40.70960932582525","-74.02476801352736"], ["40.81577946626191","-73.9166213460469"]]
+    # Manhattan - 1.25 X / 0.5 √
+    # box = [["40.70960932582525","-74.02476801352736"], ["40.81577946626191","-73.9166213460469"]]
 
-    areas = split_route_area box, 2*RANGE
+    areas = split_route_area box, 2*UPDATE_RANGE
 
     puts "Searching #{areas.length} areas within #{box}"
 
@@ -113,6 +75,7 @@ class RetrieveAllSites
     end
 
     if !result[:error]
+      # Uniquify By Room Id
       result[:success?] = true;
     end
     result

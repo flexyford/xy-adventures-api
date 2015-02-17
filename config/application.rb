@@ -22,8 +22,22 @@ module XyAdventuresApi
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+
+    config.action_dispatch.default_headers.merge!({
+     'Access-Control-Allow-Origin' => 'http://localhost:4567',
+     'Access-Control-Request-Method' => '*'
+    })
+      
+    # config.middleware.insert_before 0, "Rack::Cors" do
+    #   allow do
+    #     origins 'http://flexyford.github.io', 'http://localhost:4567'
+    #     # Allow :post later if we ever add users
+    #     resource '*', :headers => :any, :methods => [:get]
+    #   end
+    # end
   end
 end
+
 
 module JSON
   def self.is_json?(foo)

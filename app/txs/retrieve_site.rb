@@ -72,13 +72,17 @@ class RetrieveSite
       end
 
       if (updatedAreas.length > 0)
-        # Find all Recently Queried Airbnb Areas
-        updatedAreas.each do |area|
-          sites.concat(Site.where(
-            "latitude >= ? AND longitude >= ? AND latitude <= ? AND longitude <= ?",
-            area[:sw_latitude], area[:sw_longitude], area[:ne_latitude], area[:ne_longitude]
-          ))
-        end
+        # Find all Recently Queried Airbnb Areas within The Area
+        area = {
+          :sw_latitude =>  routeArea[SW][LAT].to_f,
+          :sw_longitude => routeArea[SW][LONG].to_f,
+          :ne_latitude =>  routeArea[NE][LAT].to_f,
+          :ne_longitude => routeArea[NE][LONG].to_f,
+        }
+        sites.concat(Site.where(
+          "latitude >= ? AND longitude >= ? AND latitude <= ? AND longitude <= ?",
+          area[:sw_latitude], area[:sw_longitude], area[:ne_latitude], area[:ne_longitude]
+        ))
       else
         pages = Airbnb.get_max_pages routeArea
         if(pages >= AIRBNB_MAX_PAGES)
