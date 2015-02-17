@@ -1,3 +1,4 @@
+require 'pry-byebug'
 class RetrieveAllSites
 
   UPDATE_RANGE = 50
@@ -59,7 +60,7 @@ class RetrieveAllSites
       }
       # Empty variable to free RAM
       retrieve = {}
-      retrieve = RetrieveSite.run routeArea
+      retrieve = RetrieveSite.update routeArea
       if !retrieve[:success?]
         puts "Scrape Failed for #{area} within #{box}"
         puts "#{Time.now} - Failure!"

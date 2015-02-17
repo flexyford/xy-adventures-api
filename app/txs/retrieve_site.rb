@@ -1,5 +1,7 @@
 require_relative '../../lib/assets/geo/geocalc'
 require 'geocoder'
+require 'pry-byebug'
+
 class RetrieveSite
 
   SW = 0
@@ -23,6 +25,24 @@ class RetrieveSite
     puts "DEBUG: Getting airbnb sites for #{params[:area]} . . . "
 
     sites.concat(get_airbnb_sites params[:area]) # Airbnb
+
+    if sites
+      {:status => 200, :success? => true, :sites => sites}
+    else
+      {:status => :not_found, :error => 'airbnb_scrape_failed', :area => JSON.stringify(params) }
+    end
+  end
+
+  def self.update(params)
+    sites = []
+
+    # NOTE: Route Areas for each site type should be updated 
+    #       In 'get_siteType_sites area' function
+    # Add Sites From External Sources
+
+    puts "DEBUG: Updating airbnb sites for #{params[:area]} . . . "
+
+    sites.concat(update_airbnb_sites params[:area]) # Airbnb
 
     if sites
       {:status => 200, :success? => true, :sites => sites}
@@ -58,7 +78,7 @@ class RetrieveSite
     )
   end
 
-  def self.get_airbnb_sites(routeArea)
+  def self.update_airbnb_sites(routeArea)
     sites = []
     umbrellaAreas = {}
     routeAreas = [routeArea]
@@ -143,7 +163,49 @@ class RetrieveSite
       area.destroy
     end
 
+    # Delete all Entries that have not been updated in a month
+    # Site.where("updated_at <= ?", DateTime.now - DAYS*4).find_each do |site|
+    #   site.destroy
+    # end
+
     sites.uniq{ |site| site["meta"]["room_id"] }
+  end
+
+  def self.get_airbnb_sites(routeArea)
+    sites = []
+    routeAreas = [routeArea]
+
+    while routeArea = routeAreas.pop()
+
+      area_tables = get_encompassing_routeAreas routeArea
+
+      updatedAreas =  (get_updated area_tables, DAYS).select do |area|
+        area[:site_type] == 'Airbnb'
+      end
+
+      if (updatedAreas.length > 0)
+        # Find all Recently Queried Airbnb Areas within The Area
+        area = {
+          :sw_latitude =>  routeArea[SW][LAT].to_f,
+          :sw_longitude => routeArea[SW][LONG].to_f,
+          :ne_latitude =>  routeArea[NE][LAT].to_f,
+          :ne_longitude => routeArea[NE][LONG].to_f,
+        }
+        sites.concat(Site.where(
+          "latitude >= ? AND longitude >= ? AND latitude <= ? AND longitude <= ?",
+          area[:sw_latitude], area[:sw_longitude], area[:ne_latitude], area[:ne_longitude]
+        ))
+      else
+        pages = Airbnb.get_max_pages routeArea
+        if(pages >= AIRBNB_MAX_PAGES)
+          # Concat the divided section
+          routeAreas.concat( Route::Calculation.divide_area(routeArea) )
+        end
+      end
+    end
+
+    sites.uniq{ |site| site["id"] }
+
   end
 
   def self.build_model_entry new_site, model, old_site = nil
