@@ -53,7 +53,7 @@ namespace :scraper do
     puts "#{Time.now} - End!"
   end
 
-  desc "Rake task to get NorthDakota"
+  desc "Rake task to get West Virginia"
   task :westvirginia => :environment do
     # NorthDakota
     box = [["36.969280", "-83.619411"], ["38.995352", "-80.290554"]]

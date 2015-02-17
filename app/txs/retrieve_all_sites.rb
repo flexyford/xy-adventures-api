@@ -1,4 +1,3 @@
-require 'pry-byebug'
 class RetrieveAllSites
 
   UPDATE_RANGE = 50
