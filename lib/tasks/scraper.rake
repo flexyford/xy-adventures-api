@@ -91,12 +91,28 @@ namespace :scraper do
 
   desc "Rake task to get Texas"
   task :europe => :environment do
-    # Texas
+    # Europe
     box = [["37.455456", "7.058474"], ["54.532398", "16.067263"]]
-    puts "#{Time.now} - Start!"
+    area = RetrieveAllSites.build_full_box box
 
-    update_params = {box: box}
-    areas = RetrieveAllSites.update update_params
+    # Divide Area into 24 equal sections . . . 
+    # Update every hour depending on the hour . . . 
+    length = Geocoder::Calculations.distance_between( area[:sw], area[:se]);
+    width = Geocoder::Calculations.distance_between( area[:sw], area[:nw]);
+    side = [length, width].max
+    boxes = RetrieveAllSites.split_route_area box, side / 24
+    update_idx = Time.now.hour + 1
+    update_boxes = []
+    boxes.each_index do |idx|
+      if (idx + 1) % update_idx == 0
+        update_boxes.push(boxes[idx])
+      end
+    end
+
+    update_boxes.each do |box|
+      update_params = {box: box}
+      RetrieveAllSites.update update_params
+    end
 
     puts "#{Time.now} - End!"
   end
