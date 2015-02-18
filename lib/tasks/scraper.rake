@@ -89,6 +89,18 @@ namespace :scraper do
     puts "#{Time.now} - End!"
   end
 
+  desc "Rake task to get Texas"
+  task :europe => :environment do
+    # Texas
+    box = [["37.455456", "7.058474"], ["54.532398", "16.067263"]]
+    puts "#{Time.now} - Start!"
+
+    update_params = {box: box}
+    areas = RetrieveAllSites.update update_params
+
+    puts "#{Time.now} - End!"
+  end
+
   desc "Rake task to get Continental US"
   task :continental => :environment do
 
