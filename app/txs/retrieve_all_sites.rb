@@ -1,7 +1,7 @@
 class RetrieveAllSites
 
   UPDATE_RANGE = 50
-  RANGE = 2.5
+  RANGE = 5
 
   SW = 0
   NE = 1

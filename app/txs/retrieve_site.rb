@@ -77,6 +77,24 @@ class RetrieveSite
     )
   end
 
+  def self.get_neighboring_routeAreas(area)
+    areas = []
+    box = RetrieveAllSites.build_full_box area
+    RouteArea.find_each(batch_size: 1000) do |ra|
+      # Check if any four points are within the routeArea (ra)
+      [box[:sw], box[:se], box[:ne], box[:ne]].each do |point|
+        areas.concat(
+          RouteArea.where(
+            "sw_latitude <= ? AND sw_longitude <= ? AND " + 
+            "ne_latitude >= ? AND ne_longitude >= ?", 
+            point[LAT].to_f, point[LONG].to_f, point[LAT].to_f, point[LONG].to_f
+          )
+        )
+      end
+    end
+    areas.uniq{ |area| area["id"] }
+  end
+
   def self.update_airbnb_sites(routeArea)
     sites = []
     umbrellaAreas = {}
@@ -171,40 +189,18 @@ class RetrieveSite
   end
 
   def self.get_airbnb_sites(routeArea)
-    sites = []
-    routeAreas = [routeArea]
 
-    while routeArea = routeAreas.pop()
-
-      area_tables = get_encompassing_routeAreas routeArea
-
-      updatedAreas =  (get_updated area_tables, DAYS).select do |area|
-        area[:site_type] == 'Airbnb'
-      end
-
-      if (updatedAreas.length > 0)
-        # Find all Recently Queried Airbnb Areas within The Area
-        area = {
-          :sw_latitude =>  routeArea[SW][LAT].to_f,
-          :sw_longitude => routeArea[SW][LONG].to_f,
-          :ne_latitude =>  routeArea[NE][LAT].to_f,
-          :ne_longitude => routeArea[NE][LONG].to_f,
-        }
-        sites.concat(Site.where(
-          "latitude >= ? AND longitude >= ? AND latitude <= ? AND longitude <= ?",
-          area[:sw_latitude], area[:sw_longitude], area[:ne_latitude], area[:ne_longitude]
-        ))
-      else
-        pages = Airbnb.get_max_pages routeArea
-        if(pages >= AIRBNB_MAX_PAGES)
-          # Concat the divided section
-          routeAreas.concat( Route::Calculation.divide_area(routeArea) )
-        end
-      end
-    end
-
-    sites.uniq{ |site| site["id"] }
-
+    # Find all Recently Queried Airbnb Areas within The Area
+    area = {
+      :sw_latitude =>  routeArea[SW][LAT].to_f,
+      :sw_longitude => routeArea[SW][LONG].to_f,
+      :ne_latitude =>  routeArea[NE][LAT].to_f,
+      :ne_longitude => routeArea[NE][LONG].to_f,
+    }
+    Site.where(
+      "latitude >= ? AND longitude >= ? AND latitude <= ? AND longitude <= ?",
+      area[:sw_latitude], area[:sw_longitude], area[:ne_latitude], area[:ne_longitude]
+    )
   end
 
   def self.build_model_entry new_site, model, old_site = nil
